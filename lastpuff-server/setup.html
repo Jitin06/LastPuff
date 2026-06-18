@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Last Puff — Server Setup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',sans-serif;background:#080808;color:#f5f0e8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+    .card{background:#0f0f0f;border:1px solid #1e1e1e;border-radius:20px;padding:36px 32px;max-width:480px;width:100%;}
+    .logo{font-family:'Poppins',sans-serif;font-size:26px;font-weight:800;letter-spacing:4px;margin-bottom:4px;}
+    .logo span{color:#ff5e1a;}
+    .sub{font-size:13px;color:#666;margin-bottom:32px;}
+    .step{background:#141414;border:1px solid #222;border-radius:14px;padding:20px;margin-bottom:16px;}
+    .step-num{font-size:11px;color:#ff5e1a;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+    .step-title{font-size:15px;font-weight:600;color:#f5f0e8;margin-bottom:8px;}
+    .step-body{font-size:13px;color:#888;line-height:1.7;}
+    .step-body a{color:#ff8c4a;text-decoration:none;}
+    .step-body a:hover{text-decoration:underline;}
+    .step-body code{background:#1a1a1a;border:1px solid #2a2a2a;padding:2px 8px;border-radius:5px;font-size:12px;color:#ff8c4a;font-family:monospace;}
+    label{display:block;font-size:11px;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+    input{width:100%;background:#141414;border:1.5px solid #222;border-radius:10px;padding:12px 14px;color:#f5f0e8;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s;margin-bottom:16px;}
+    input:focus{border-color:#ff5e1a;background:#1a1a1a;}
+    input::placeholder{color:#333;}
+    .btn{width:100%;padding:14px;background:#ff5e1a;border:none;border-radius:12px;color:white;font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;margin-bottom:10px;}
+    .btn:hover{background:#ff6e2e;transform:translateY(-1px);box-shadow:0 6px 24px rgba(255,94,26,0.4);}
+    .btn:active{transform:scale(0.98);}
+    .btn.secondary{background:#1a1a1a;border:1px solid #333;color:#888;font-size:13px;padding:11px;}
+    .btn.secondary:hover{border-color:#555;color:#f5f0e8;box-shadow:none;}
+    .status{padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:12px;display:none;}
+    .status.ok  {background:#0d2d0d;border:1px solid #2a6a2a;color:#5ecf5e;}
+    .status.err {background:#1a0808;border:1px solid #5a1a1a;color:#e24b4a;}
+    .status.info{background:#0d0d1a;border:1px solid #1a1a5a;color:#8888ff;}
+    .divider{border:none;border-top:1px solid #1a1a1a;margin:20px 0;}
+    .server-check{display:flex;align-items:center;gap:8px;font-size:12px;color:#555;margin-bottom:24px;}
+    .dot{width:8px;height:8px;border-radius:50%;background:#e24b4a;}
+    .dot.on{background:#5ecf5e;box-shadow:0 0 6px rgba(94,207,94,0.5);animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">LAST<span>PUFF</span></div>
+  <div class="sub">Server setup — configure Gmail to enable daily email reports</div>
+
+  <!-- Server status -->
+  <div class="server-check">
+    <div class="dot" id="serverDot"></div>
+    <span id="serverStatus">Checking server...</span>
+  </div>
+
+  <!-- Step 1: Enable App Password -->
+  <div class="step">
+    <div class="step-num">Step 1</div>
+    <div class="step-title">Create a Gmail App Password</div>
+    <div class="step-body">
+      You need a special App Password (not your regular Gmail password).<br/><br/>
+      1. Go to <a href="https://myaccount.google.com/security" target="_blank">myaccount.google.com/security</a><br/>
+      2. Enable <strong style="color:#f5f0e8;">2-Step Verification</strong> if not already on<br/>
+      3. Search for <strong style="color:#f5f0e8;">"App Passwords"</strong> in the search bar<br/>
+      4. Create a new app password — name it <code>Last Puff</code><br/>
+      5. Copy the 16-character password shown (e.g. <code>abcd efgh ijkl mnop</code>)
+    </div>
+  </div>
+
+  <!-- Step 2: Enter credentials -->
+  <div class="step">
+    <div class="step-num">Step 2</div>
+    <div class="step-title">Enter your Gmail details</div>
+    <div class="step-body" style="margin-bottom:16px;">Credentials are saved locally on your laptop only. Never sent anywhere.</div>
+
+    <div id="status" class="status"></div>
+
+    <label>Your Gmail address</label>
+    <input id="gmailUser" type="email" placeholder="yourname@gmail.com"/>
+
+    <label>App Password (16 characters, spaces OK)</label>
+    <input id="gmailPass" type="password" placeholder="abcd efgh ijkl mnop"/>
+
+    <button class="btn" onclick="saveConfig()">💾 Save Configuration</button>
+    <button class="btn secondary" onclick="testEmail()">📧 Send Test Email Now</button>
+  </div>
+
+  <hr class="divider"/>
+
+  <!-- App sync info -->
+  <div class="step">
+    <div class="step-num">Info</div>
+    <div class="step-title">How it works</div>
+    <div class="step-body">
+      • The app at <code>index.html</code> automatically syncs your data to this server every time you log a cigarette<br/><br/>
+      • Every night at <strong style="color:#ff5e1a;">11:59 PM IST</strong>, the server sends a beautiful HTML report to your email<br/><br/>
+      • Keep this terminal window open (or run it in the background) for emails to work<br/><br/>
+      • You can also click <strong style="color:#f5f0e8;">"Send Test Email Now"</strong> to verify it's working
+    </div>
+  </div>
+
+</div>
+
+<script>
+async function checkServer() {
+  try {
+    const r = await fetch('http://localhost:3000/ping');
+    const d = await r.json();
+    document.getElementById('serverDot').classList.add('on');
+    document.getElementById('serverStatus').textContent = 'Server running ✓';
+    document.getElementById('serverStatus').style.color = '#5ecf5e';
+  } catch(e) {
+    document.getElementById('serverDot').classList.remove('on');
+    document.getElementById('serverStatus').textContent = 'Server not running — start it with: node server.js';
+    document.getElementById('serverStatus').style.color = '#e24b4a';
+  }
+}
+
+function showStatus(msg, type) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status ' + type;
+  el.style.display = 'block';
+}
+
+async function saveConfig() {
+  const user = document.getElementById('gmailUser').value.trim();
+  const pass = document.getElementById('gmailPass').value.replace(/\s/g,'');
+  if (!user || !pass) { showStatus('Please fill in both fields.', 'err'); return; }
+  if (!user.includes('@gmail.com')) { showStatus('Must be a Gmail address.', 'err'); return; }
+  if (pass.length < 16) { showStatus('App password should be 16 characters.', 'err'); return; }
+  try {
+    showStatus('Saving...', 'info');
+    const r = await fetch('http://localhost:3000/api/config', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ gmailUser: user, gmailAppPassword: pass })
+    });
+    const d = await r.json();
+    if (d.ok) showStatus('✅ Gmail configured! Daily emails will send at 11:59 PM.', 'ok');
+    else showStatus('Error: ' + d.error, 'err');
+  } catch(e) { showStatus('Cannot reach server. Is node server.js running?', 'err'); }
+}
+
+async function testEmail() {
+  try {
+    showStatus('Sending test email...', 'info');
+    const r = await fetch('http://localhost:3000/api/test-email', { method: 'POST' });
+    const d = await r.json();
+    if (d.ok) showStatus('✅ Test email sent! Check your inbox (and spam folder).', 'ok');
+    else showStatus('Error: ' + d.error, 'err');
+  } catch(e) { showStatus('Cannot reach server. Is node server.js running?', 'err'); }
+}
+
+checkServer();
+setInterval(checkServer, 5000);
+</script>
+</body>
+</html>

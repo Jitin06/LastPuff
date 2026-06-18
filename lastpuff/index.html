@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>LAST PUFF — Smart Smoking Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<div id="app">
+
+  <!-- ═══ LANDING ═══ -->
+  <section id="screen-landing" class="screen active-landing">
+    <div class="smoke-canvas" id="smokeCanvas"></div>
+    <div class="landing-center">
+      <div class="brand-row">
+        <div class="brand-logo">LP</div>
+        <div class="brand-wordmark">LAST<span>PUFF</span></div>
+      </div>
+      <div class="tagline">Every Puff Counts.</div>
+      <div class="cig-container" id="cigContainer" onclick="goto('onboarding')">
+        <svg id="cigSvg" width="100" height="260" viewBox="0 0 100 260">
+          <defs>
+            <linearGradient id="fg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#d4b88a"/><stop offset="100%" stop-color="#9a6a30"/>
+            </linearGradient>
+            <linearGradient id="bg2" x1="1" y1="0" x2="0" y2="0">
+              <stop offset="0%" stop-color="#f5f2ec"/><stop offset="100%" stop-color="#e0dbd0"/>
+            </linearGradient>
+            <radialGradient id="eg" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="30%" stop-color="#ffee88"/>
+              <stop offset="70%" stop-color="#ff7700"/>
+              <stop offset="100%" stop-color="#cc3300"/>
+            </radialGradient>
+          </defs>
+          <rect x="30" y="10" width="40" height="55" rx="6" fill="url(#fg)"/>
+          <line x1="30" y1="24" x2="70" y2="24" stroke="#b8986a" stroke-width="1.2"/>
+          <line x1="30" y1="34" x2="70" y2="34" stroke="#b8986a" stroke-width="1.2"/>
+          <line x1="30" y1="44" x2="70" y2="44" stroke="#b8986a" stroke-width="1.2"/>
+          <line x1="30" y1="54" x2="70" y2="54" stroke="#b8986a" stroke-width="1.2"/>
+          <rect x="30" y="63" width="40" height="5" fill="#d4a860"/>
+          <rect x="32" y="68" width="36" height="152" fill="url(#bg2)"/>
+          <line x1="32" y1="95"  x2="68" y2="95"  stroke="#ddd8ce" stroke-width="0.8"/>
+          <line x1="32" y1="125" x2="68" y2="125" stroke="#ddd8ce" stroke-width="0.8"/>
+          <line x1="32" y1="155" x2="68" y2="155" stroke="#ddd8ce" stroke-width="0.8"/>
+          <line x1="32" y1="185" x2="68" y2="185" stroke="#ddd8ce" stroke-width="0.8"/>
+          <rect x="33" y="218" width="34" height="16" rx="3" fill="#5a4a3a"/>
+          <ellipse cx="50" cy="218" rx="18" ry="5" fill="#9a9890"/>
+          <ellipse id="ember1" cx="50" cy="225" rx="13" ry="7" fill="#ff5500" opacity="0.95"/>
+          <ellipse id="ember2" cx="50" cy="228" rx="7"  ry="4" fill="#ffcc00" opacity="0.9"/>
+          <circle  id="ember3" cx="50" cy="230" r="3.5"       fill="url(#eg)"/>
+        </svg>
+        <div style="position:absolute;bottom:18px;left:50%;transform:translateX(-50%);width:50px;height:20px;background:radial-gradient(ellipse,rgba(255,100,0,0.6),transparent 70%);border-radius:50%;animation:glowPulse 1.4s ease-in-out infinite;"></div>
+      </div>
+      <div class="tap-hint">— tap the cigarette to begin —</div>
+    </div>
+  </section>
+
+  <!-- ═══ ONBOARDING ═══ -->
+  <section id="screen-onboarding" class="screen">
+    <div class="ob-top">
+      <div class="ob-step">Step 1 of 1</div>
+      <div class="ob-title">Build your profile.</div>
+      <div class="ob-sub">We track smart, not harsh.</div>
+    </div>
+    <div class="ob-fields">
+      <div class="field-group">
+        <label class="field-label" for="ob-name">Your first name</label>
+        <input class="field-input" id="ob-name" type="text" placeholder="e.g. Jitin" autocomplete="off"/>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label" for="ob-target">Daily target</label>
+          <input class="field-input" id="ob-target" type="number" placeholder="5" min="1" max="50"/>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="ob-cost">Cost/cigarette (₹)</label>
+          <input class="field-input" id="ob-cost" type="number" placeholder="12" min="1"/>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Why are you quitting?</label>
+        <div class="reasons-grid">
+          <div class="reason sel" data-v="Fitness"       onclick="selReason(this)">🏋️ Fitness</div>
+          <div class="reason"     data-v="Health"        onclick="selReason(this)">❤️ Health</div>
+          <div class="reason"     data-v="Money"         onclick="selReason(this)">💰 Money</div>
+          <div class="reason"     data-v="Family"        onclick="selReason(this)">👨‍👩‍👧 Family</div>
+          <div class="reason"     data-v="Relationships" onclick="selReason(this)">💑 Love</div>
+          <div class="reason"     data-v="Self Control"  onclick="selReason(this)">🧠 Control</div>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="ob-email">Email (for daily reports)</label>
+        <input class="field-input" id="ob-email" type="email" placeholder="you@example.com" autocomplete="off"/>
+      </div>
+    </div>
+    <button class="cta-btn" onclick="startApp()">
+      Start Tracking <span style="font-size:20px">→</span>
+    </button>
+  </section>
+
+  <!-- ═══ DASHBOARD ═══ -->
+  <section id="screen-dashboard" class="screen">
+    <div class="dash-header">
+      <div>
+        <div class="dash-greet" id="d-greet">Good evening,</div>
+        <div class="dash-name"  id="d-name">Friend</div>
+      </div>
+      <div class="header-right">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="streak-chip" id="d-streak-chip">🔥 0-day streak</div>
+          <button class="email-preview-btn" onclick="goto('email-preview')" title="Daily report">✉️</button>
+        </div>
+        <div id="server-badge" style="font-size:11px;color:#444;margin-bottom:4px;">⚪ Email server off</div>
+        <div class="data-btns">
+          <button class="data-btn export-btn" onclick="exportToExcel()">📥 Excel</button>
+          <label class="data-btn import-btn">
+            📂 Import
+            <input type="file" id="xlImport" accept=".xlsx" style="display:none" onchange="importFromExcel(this.files[0])"/>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="ring-section">
+      <div class="ring-wrap" onclick="animRing()">
+        <svg width="200" height="200" viewBox="0 0 200 200" id="ringsvg">
+          <circle cx="100" cy="100" r="80" fill="none" stroke="#1c1c1c" stroke-width="18"/>
+          <circle id="ringArc" cx="100" cy="100" r="80" fill="none"
+            stroke="#ff5e1a" stroke-width="18" stroke-linecap="round"
+            stroke-dasharray="502.65" stroke-dashoffset="502.65"
+            transform="rotate(-90 100 100)"/>
+          <text id="ringNum"    x="100" y="92"  text-anchor="middle" font-family="Poppins,sans-serif" font-size="42" font-weight="700" fill="#f5f0e8">0</text>
+          <text                 x="100" y="112" text-anchor="middle" font-family="Inter,sans-serif"   font-size="13"                   fill="#666">smoked today</text>
+          <text                 x="100" y="132" text-anchor="middle" font-family="Inter,sans-serif"   font-size="12"                   fill="#444">target: <tspan id="ringTarget" fill="#ff5e1a">5</tspan></text>
+        </svg>
+        <div class="ring-pulse"></div>
+      </div>
+      <div class="status-pill" id="statusPill">✓ Under target · Keep going!</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">💸</div><div class="stat-val" id="s-spent">₹0</div><div class="stat-lbl">Spent today</div></div>
+      <div class="stat-card green"><div class="stat-icon">💚</div><div class="stat-val" id="s-saved">₹60</div><div class="stat-lbl">Saved today</div></div>
+      <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-val">—</div><div class="stat-lbl">Weekly avg</div></div>
+      <div class="stat-card amber"><div class="stat-icon">🏆</div><div class="stat-val" id="s-streak">0</div><div class="stat-lbl">Day streak</div></div>
+    </div>
+
+    <div class="section-hd">Top Triggers</div>
+    <div class="trigger-bars" id="triggerBars"></div>
+
+    <div class="section-hd">Today's Timeline <span class="tl-count" id="tlCount">0 cigarettes</span></div>
+    <div class="timeline" id="timeline"></div>
+
+    <div class="section-hd">This Week</div>
+    <div class="mini-chart" id="miniChart"></div>
+
+    <nav class="bottom-nav">
+      <div class="nav-item active" onclick="goto('dashboard')">
+        <div class="nav-icon">🏠</div><div class="nav-lbl">Home</div>
+      </div>
+      <div class="nav-log" onclick="goto('log')">
+        <div class="nav-log-btn">🚬</div>
+        <div class="nav-lbl-log">Log</div>
+      </div>
+      <div class="nav-item" onclick="goto('analytics')">
+        <div class="nav-icon">📈</div><div class="nav-lbl">Analytics</div>
+      </div>
+    </nav>
+  </section>
+
+  <!-- ═══ LOG ═══ -->
+  <section id="screen-log" class="screen">
+    <div class="log-wrap">
+      <div class="log-header">
+        <button class="back-btn" onclick="goto('dashboard')">← Back</button>
+        <div class="log-title">Log a Cigarette</div>
+        <div class="log-time" id="logTime">—</div>
+      </div>
+      <div class="log-cig-anim">
+        <div class="log-cig-icon" id="logCigIcon">☕</div>
+        <div class="log-cig-label">Select your trigger below</div>
+      </div>
+      <div class="trig-section-lbl">What triggered this?</div>
+      <div class="trig-grid" id="trigGrid">
+        <div class="trig-tile active" data-t="Tea"      data-i="☕"   onclick="selTrig(this)"><div class="trig-emoji">☕</div><div class="trig-name">Tea</div></div>
+        <div class="trig-tile"       data-t="Coding"   data-i="💻"   onclick="selTrig(this)"><div class="trig-emoji">💻</div><div class="trig-name">Coding</div></div>
+        <div class="trig-tile"       data-t="Stress"   data-i="😮‍💨" onclick="selTrig(this)"><div class="trig-emoji">😮‍💨</div><div class="trig-name">Stress</div></div>
+        <div class="trig-tile"       data-t="Friends"  data-i="👥"   onclick="selTrig(this)"><div class="trig-emoji">👥</div><div class="trig-name">Friends</div></div>
+        <div class="trig-tile"       data-t="Gaming"   data-i="🎮"   onclick="selTrig(this)"><div class="trig-emoji">🎮</div><div class="trig-name">Gaming</div></div>
+        <div class="trig-tile"       data-t="Party"    data-i="🍺"   onclick="selTrig(this)"><div class="trig-emoji">🍺</div><div class="trig-name">Party</div></div>
+        <div class="trig-tile"       data-t="Studying" data-i="📚"   onclick="selTrig(this)"><div class="trig-emoji">📚</div><div class="trig-name">Studying</div></div>
+        <div class="trig-tile"       data-t="Other"    data-i="⚡"   onclick="selTrig(this)"><div class="trig-emoji">⚡</div><div class="trig-name">Other</div></div>
+      </div>
+      <div class="mood-section">
+        <div class="trig-section-lbl">Mood right now?</div>
+        <div class="mood-row" id="moodRow">
+          <div class="mood-btn active" data-m="😌" onclick="selMood(this)">😌<span>Calm</span></div>
+          <div class="mood-btn"        data-m="😤" onclick="selMood(this)">😤<span>Stressed</span></div>
+          <div class="mood-btn"        data-m="😴" onclick="selMood(this)">😴<span>Bored</span></div>
+          <div class="mood-btn"        data-m="🥳" onclick="selMood(this)">🥳<span>Social</span></div>
+          <div class="mood-btn"        data-m="😔" onclick="selMood(this)">😔<span>Low</span></div>
+        </div>
+      </div>
+      <div class="notes-section">
+        <div class="trig-section-lbl">Notes (optional)</div>
+        <textarea class="notes-input" id="logNotes" placeholder="e.g. After lunch, felt restless..."></textarea>
+      </div>
+      <button class="log-confirm-btn" onclick="confirmLog()">🚬 LOG THIS CIGARETTE</button>
+    </div>
+    <div class="log-success" id="logSuccess">
+      <div class="success-ring"></div>
+      <div class="success-icon">✅</div>
+      <div class="success-title">Logged!</div>
+      <div class="success-sub" id="successSub">Cigarette #1 recorded</div>
+      <div class="success-tip" id="successTip">Keep tracking.</div>
+    </div>
+  </section>
+
+  <!-- ═══ ANALYTICS ═══ -->
+  <section id="screen-analytics" class="screen">
+    <div class="an-wrap">
+      <div class="an-header">
+        <button class="back-btn" onclick="goto('dashboard')">← Back</button>
+        <div class="an-title">Analytics</div>
+      </div>
+      <div class="section-hd">Weekly Overview</div>
+      <div class="week-chart" id="weekChart"></div>
+      <div class="money-card">
+        <div class="money-top">
+          <div>
+            <div class="money-label">Monthly savings</div>
+            <div class="money-big" id="mSavedMonthly">₹0</div>
+          </div>
+          <div class="money-equiv">
+            <div class="eq-lbl">Equivalent to</div>
+            <div class="eq-val" id="equivVal">🏋️ Gym membership</div>
+          </div>
+        </div>
+        <div class="money-row">
+          <div class="money-item"><div class="mi-val" id="m-today">₹0</div><div class="mi-lbl">Today</div></div>
+          <div class="money-item"><div class="mi-val" id="m-week">₹0</div><div class="mi-lbl">This week</div></div>
+          <div class="money-item"><div class="mi-val" id="m-year">₹0</div><div class="mi-lbl">Yr projection</div></div>
+        </div>
+      </div>
+      <div class="section-hd">Trigger Breakdown</div>
+      <div class="trig-full-list" id="trigFullList"></div>
+      <div class="section-hd">Health Recovery</div>
+      <div class="milestones" id="milestones"></div>
+      <div class="section-hd">Weekly Grade</div>
+      <div class="grade-card" id="gradeCard">
+        <div class="grade-label">Performance</div>
+        <div class="grade-letter" id="gradeLetter">—</div>
+        <div class="grade-note"   id="gradeNote">Log more days to get your grade.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ EMAIL PREVIEW ═══ -->
+  <section id="screen-email-preview" class="screen">
+    <div class="ep-header">
+      <button class="back-btn" onclick="goto('dashboard')">← Back</button>
+      <div class="ep-title">Daily Report</div>
+      <button class="send-btn" onclick="showEmailSent()">Send ✉️</button>
+    </div>
+    <div class="ep-scroll">
+      <div class="ep-meta">
+        <div class="ep-meta-row">📬 To: <span id="ep-to">—</span></div>
+        <div class="ep-meta-row">📅 <span id="ep-date">—</span></div>
+        <div class="ep-meta-row">⏰ Sends at 11:59 PM daily</div>
+      </div>
+      <div class="email-card" id="emailCard"></div>
+    </div>
+    <div class="email-sent-overlay" id="emailSentOverlay">
+      <div class="sent-inner">
+        <div class="sent-icon">📬</div>
+        <div class="sent-title">Report Sent!</div>
+        <div class="sent-sub" id="sentSub">—</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<style>
+@keyframes glowPulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+</style>
+
+<script src="js/app.js"></script>
+</body>
+</html>
